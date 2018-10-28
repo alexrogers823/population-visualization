@@ -7,8 +7,7 @@ fetch('https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf2
     console.log(states);
   });
 
-// this should be an array with all 50 states, each stated listed once
-
+// This function to be used with the sort method on object-based arrays
 function compare(a, b) {
   const stateA = a.state;
   const stateB = b.state;
