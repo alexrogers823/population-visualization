@@ -31,6 +31,11 @@ function compare(a, b) {
 //   state: "New York"
 // }
 
+// Use async/await syntax for practice, instead of the fetch/then
+// Using v4/v5 syntax for D3 for practice
+// Set interval will be 2.5-3 seconds this time
+// Play with size of circles to represent total population (data viz highlight)
+
 // Goal:
 // Show an interactive, +/- axis of population growth of cities by state
 // also calculate by year
