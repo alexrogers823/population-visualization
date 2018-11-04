@@ -20,6 +20,13 @@ function compare(a, b) {
   }
   return comparison;
 }
+
+const canvas = d3.select('svg');
+
+canvas.append('g')
+  .attr('width', 50)
+  .attr('height', 50);
+
 // data looks like this
 // {
 //   city: "New York",
