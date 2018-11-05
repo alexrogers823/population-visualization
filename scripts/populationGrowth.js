@@ -24,8 +24,8 @@ function compare(a, b) {
 const canvas = d3.select('svg');
 
 canvas.append('g')
-  .attr('width', 50)
-  .attr('height', 50);
+  .attr('width', 500)
+  .attr('height', 1000);
 
 // data looks like this
 // {
