@@ -4,7 +4,7 @@ fetch('https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf2
   .then(data => {
     cities.push(...data);
     const states = [...new Set(cities.map(city => city.state))];
-    console.log(states);
+    // console.log(states);
   });
 
 // This function to be used with the sort method on object-based arrays
@@ -21,11 +21,15 @@ function compare(a, b) {
   return comparison;
 }
 
-const canvas = d3.select('svg');
+const [width, height] = [1000, 500];
 
-canvas.append('g')
-  .attr('width', 500)
-  .attr('height', 1000);
+const canvas = d3.select('svg').append('g')
+  .attr('width', width)
+  .attr('height', height);
+
+// sample data. just for testing before async/await. Growth %
+const sampleData = ["3.9%", "1.5%", "5.3%", "4.8%", "-2.7%",
+                    "4.2%", "7.9%", "0.6%", "-1.3%", "4.0%"]
 
 // data looks like this
 // {
@@ -55,3 +59,42 @@ canvas.append('g')
 // we actually may have two different graphs here, lol
 // line graph: showing progression of population (y-axis) through the years (x-axis)
 // scatter plot graph: showing all cities sorted (x-axis) and their population growth (y-axis)
+
+// x-axis
+const cityScale = d3.scaleLinear()
+  .domain([1, 10])
+  .range([50, width-50]);
+
+const cityAxis = d3.axisBottom(cityScale)
+  .ticks(10)
+  .tickSize(2)
+  .tickPadding(5);
+
+canvas.append('g')
+  .attr('transform', `translate(0, ${height-20})`)
+  .call(cityAxis);
+
+// y-axis
+const growthScale = d3.scaleLinear()
+  .domain([8, -3])
+  .range([50, height-50]);
+
+const growthAxis = d3.axisLeft(growthScale)
+  .ticks(12)
+  .tickSize(2)
+  .tickPadding(5);
+
+canvas.append('g')
+  .attr('transform', `translate(20, 0)`)
+  .call(growthAxis);
+
+// Binding and making shapes (sample only)
+const circles = canvas.selectAll('.circle')
+  .data(sampleData.map(n => parseFloat(n)));
+
+circles.enter()
+  .append('circle')
+  .attr('class', 'circle')
+  .attr('cx', (d, i) => cityScale(1+i)) //So circles are made from 1 instead of 0
+  .attr('cy', (d, i) => growthScale(d))
+  .attr('r', 5);
