@@ -7,3 +7,11 @@ svg {
 p {
   color: blue;
 }
+
+.circle:hover {
+  fill: green;
+}
+
+.grid {
+  opacity: 0.5;
+}

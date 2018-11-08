@@ -28,8 +28,68 @@ const canvas = d3.select('svg').append('g')
   .attr('height', height);
 
 // sample data. just for testing before async/await. Growth %
-const sampleData = ["3.9%", "1.5%", "5.3%", "4.8%", "-2.7%",
-                    "4.2%", "7.9%", "0.6%", "-1.3%", "4.0%"]
+const sampleData = [
+  {
+    city: "New York",
+    state: "New York",
+    population: "2456933",
+  growth: "3.9%",
+  },
+  {
+    city: "Chicago",
+    state: "Illinois",
+    population: "245934",
+  growth: "1.5%",
+  },
+  {
+    city: "Los Angeles",
+    state: "California",
+    population: "1723745",
+  growth: "5.3%",
+  },
+  {
+    city: "Minneapolis",
+    state: "Minnesota",
+    population: "456823",
+  growth: "4.8%",
+  },
+  {
+    city: "Atlanta",
+    state: "Georgia",
+    population: "588923",
+  growth: "-2.7%",
+  },
+  {
+    city: "Houston",
+    state: "Texas",
+    population: "502984",
+  growth: "4.2%",
+  },
+  {
+    city: "St. Louis",
+    state: "Missouri",
+    population: "233987",
+  growth: "7.9%",
+  },
+  {
+    city: "San Francisco",
+    state: "California",
+    population: "998734",
+  growth: "0.6%",
+  },
+  {
+    city: "Seattle",
+    state: "Washington",
+    population: "492834",
+  growth: "-1.3%",
+  },
+  {
+    city: "Miami",
+    state: "Florida",
+    population: "703958",
+  growth: "4.0%"
+  }
+];
 
 // data looks like this
 // {
@@ -68,7 +128,8 @@ const cityScale = d3.scaleLinear()
 const cityAxis = d3.axisBottom(cityScale)
   .ticks(10)
   .tickSize(2)
-  .tickPadding(5);
+  .tickPadding(5)
+  .tickFormat((d, i) => sampleData[i].city)
 
 canvas.append('g')
   .attr('transform', `translate(0, ${height-20})`)
@@ -88,9 +149,21 @@ canvas.append('g')
   .attr('transform', `translate(20, 0)`)
   .call(growthAxis);
 
+// Grid lines
+canvas.append('g')
+  .attr('class', 'grid')
+  // .attr('transform', `translate(0, 0`)
+  .call(d3.axisLeft()
+          .scale(growthScale)
+          .tickSize(-width, 0, 0)
+          .tickFormat(''));
+
+// Labels
+
+
 // Binding and making shapes (sample only)
 const circles = canvas.selectAll('.circle')
-  .data(sampleData.map(n => parseFloat(n)));
+  .data(sampleData.map(n => parseFloat(n.growth)));
 
 circles.enter()
   .append('circle')
