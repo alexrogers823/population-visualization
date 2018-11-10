@@ -1,11 +1,32 @@
-const cities = [];
-fetch('https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json')
-  .then(blob => blob.json())
-  .then(data => {
-    cities.push(...data);
-    const states = [...new Set(cities.map(city => city.state))];
-    // console.log(states);
-  });
+// const cities = [];
+// fetch('https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json')
+//   .then(blob => blob.json())
+//   .then(data => {
+//     cities.push(...data);
+//     const states = [...new Set(cities.map(city => city.state))];
+//     console.log(states);
+//   });
+// const cities = [];
+
+// Find out how to do this without pushing into a global variable
+async function loadData(variable) {
+  const data = await fetch('https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json');
+  const json = await data.json();
+  variable.push(...json);
+  // console.log(json);
+  // return json;
+}
+
+async function test() {
+  const cities = [];
+  await loadData(cities);
+  console.log(cities);
+}
+
+// test();
+
+
+
 
 // This function to be used with the sort method on object-based arrays
 function compare(a, b) {
@@ -120,6 +141,15 @@ const sampleData = [
 // line graph: showing progression of population (y-axis) through the years (x-axis)
 // scatter plot graph: showing all cities sorted (x-axis) and their population growth (y-axis)
 
+// Setting axis range of current growth dataset
+function growthRange(data) {
+  const min = Math.floor(Math.min(...data.map(n => parseFloat(n.growth))));
+  const max = Math.ceil(Math.max(...data.map(n => parseFloat(n.growth))));
+  return [min, max];
+}
+
+const [growthMin, growthMax] = growthRange(sampleData);
+
 // x-axis
 const cityScale = d3.scaleLinear()
   .domain([1, 10])
@@ -137,7 +167,7 @@ canvas.append('g')
 
 // y-axis
 const growthScale = d3.scaleLinear()
-  .domain([8, -3])
+  .domain([growthMax, growthMin])
   .range([50, height-50]);
 
 const growthAxis = d3.axisLeft(growthScale)
@@ -160,14 +190,21 @@ canvas.append('g')
 
 // Labels
 
+// Setting radius based on population
+function setRadius(population) {
+  const num = parseFloat(population);
+  const divider = 125000;
+  return (num < 625000) ? 5 : num / divider;
+}
+
 
 // Binding and making shapes (sample only)
 const circles = canvas.selectAll('.circle')
-  .data(sampleData.map(n => parseFloat(n.growth)));
+  .data(sampleData);
 
 circles.enter()
   .append('circle')
   .attr('class', 'circle')
   .attr('cx', (d, i) => cityScale(1+i)) //So circles are made from 1 instead of 0
-  .attr('cy', (d, i) => growthScale(d))
-  .attr('r', 5);
+  .attr('cy', (d, i) => growthScale(parseFloat(d.growth)))
+  .attr('r', (d, i) => setRadius(d.population));
