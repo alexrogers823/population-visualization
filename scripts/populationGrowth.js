@@ -21,13 +21,13 @@ async function test() {
   console.log(cities);
 }
 
-async function main() {
+async function prepareState(index) {
   const allCities = await loadData();
   // console.log(allCities);
   const states = [...new Set(allCities.map(city => city.state))]
                   .sort();
   // console.log(states[0]);
-  const cities = allCities.filter(city => city.state === states[6])
+  const cities = allCities.filter(city => city.state === states[index])
                           .slice(0, 10);
   // console.log(cities);
   return cities;
@@ -160,8 +160,8 @@ function growthRange(data) {
   return [min, max];
 }
 
-async function makeAxis() {
-  const data = await main();
+async function makeAxis(state) {
+  const data = await prepareState(state);
   console.log(data);
   const [growthMin, growthMax] = growthRange(data);
 
@@ -171,14 +171,19 @@ async function makeAxis() {
   .range([50, width-50]);
 
   const cityAxis = d3.axisBottom(cityScale)
-  .ticks(10)
+  .ticks(data.length)
   .tickSize(2)
   .tickPadding(5)
-  .tickFormat((d, i) => data[i].city)
+  .tickFormat((d, i) => {
+    // console.log(d);
+    // console.log(i);
+    if (i === data.length) return '.';
+    return data[i].city;
+  });
 
-  canvas.append('g')
-  .attr('transform', `translate(0, ${height-20})`)
-  .call(cityAxis);
+  // canvas.append('g')
+  // .attr('transform', `translate(0, ${height-20})`)
+  // .call(cityAxis);
 
   // y-axis
   const growthScale = d3.scaleLinear()
@@ -190,9 +195,9 @@ async function makeAxis() {
   .tickSize(2)
   .tickPadding(5);
 
-  canvas.append('g')
-  .attr('transform', `translate(20, 0)`)
-  .call(growthAxis);
+  // canvas.append('g')
+  // .attr('transform', `translate(20, 0)`)
+  // .call(growthAxis);
 
   // Making grid lines
   canvas.append('g')
@@ -203,27 +208,50 @@ async function makeAxis() {
   .tickSize(-width, 0, 0)
   .tickFormat(''));
 
-  return [data, cityScale, growthScale];
+  return [data, cityScale, growthScale, cityAxis, growthAxis];
 
 }
 
-async function updateGraph() {
-  const [data, cityScale, growthScale] = await makeAxis();
+async function updateGraph(state) {
+  const [data, cityScale, growthScale, cityAxis, growthAxis] = await makeAxis(state);
+
+  // Re-calling the axis'
+  const spawnCityAxis = canvas.append('g')
+                        .attr('transform', `translate(0, ${height-20})`);
+
+  const spawnGrowthAxis = canvas.append('g')
+                          .attr('transform', 'translate(20, 0)');
+
+  spawnCityAxis.call(cityAxis);
+  spawnGrowthAxis.call(growthAxis);
 
   // Binding and making shapes
   const circles = canvas.selectAll('.circle')
   .data(data);
+
+  circles.exit().remove();
+
+  circles.attr('cx', (d, i) => cityScale(1+i))
+          .attr('cy', (d, i) => growthScale(parseFloat(d.growth_from_2000_to_2013)));
 
   circles.enter()
   .append('circle')
   .attr('class', 'circle')
   .attr('cx', (d, i) => cityScale(1+i)) //So circles are made from 1 instead of 0
   .attr('cy', (d, i) => growthScale(parseFloat(d.growth_from_2000_to_2013)))
-  .attr('r', (d, i) => setRadius(d.population));
+  .attr('r', (d, i) => setRadius(d.population))
+  .attr('fill', '#bb2222');
+
 
 }
 
-updateGraph();
+updateGraph(6);
+
+// let stateNum = 0;
+// setInterval(() => {
+//   updateGraph(stateNum);
+//   stateNum++;
+// }, 2000);
 
 
 // Setting amount of ticks
