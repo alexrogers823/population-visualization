@@ -22,6 +22,7 @@ async function test() {
 }
 
 async function prepareState(index) {
+  const span = document.querySelector('span');
   const allCities = await loadData();
   // console.log(allCities);
   const states = [...new Set(allCities.map(city => city.state))]
@@ -29,6 +30,8 @@ async function prepareState(index) {
   // console.log(states[0]);
   const cities = allCities.filter(city => city.state === states[index])
                           .slice(0, 10);
+
+  span.textContent = states[index];
   // console.log(cities);
   return cities;
 }
