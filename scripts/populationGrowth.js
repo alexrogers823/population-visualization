@@ -200,13 +200,14 @@ async function makeAxis(state) {
   // .call(growthAxis);
 
   // Making grid lines
-  canvas.append('g')
-  .attr('class', 'grid')
-  // .attr('transform', `translate(0, 0`)
-  .call(d3.axisLeft()
-  .scale(growthScale)
-  .tickSize(-width, 0, 0)
-  .tickFormat(''));
+  // canvas.append('g')
+  // .attr('class', 'grid')
+  // // .attr('transform', `translate(0, 0`)
+  // .call(d3.axisLeft()
+  // .scale(growthScale)
+  // .tickSize(-width, 0, 0)
+  // .tickFormat(''));
+
 
   return [data, cityScale, growthScale, cityAxis, growthAxis];
 
@@ -215,15 +216,31 @@ async function makeAxis(state) {
 async function updateGraph(state) {
   const [data, cityScale, growthScale, cityAxis, growthAxis] = await makeAxis(state);
 
+
   // Re-calling the axis'
   const spawnCityAxis = canvas.append('g')
+                        .attr('class', 'xAxis')
                         .attr('transform', `translate(0, ${height-20})`);
 
   const spawnGrowthAxis = canvas.append('g')
+                          .attr('class', 'yAxis')
                           .attr('transform', 'translate(20, 0)');
+
+  // Removing previous axis
 
   spawnCityAxis.call(cityAxis);
   spawnGrowthAxis.call(growthAxis);
+
+
+  const callGrid = canvas.append('g')
+  .attr('class', 'grid');
+  // .attr('transform', `translate(0, 0`)
+
+
+  callGrid.call(d3.axisLeft()
+  .scale(growthScale)
+  .tickSize(-width, 0, 0)
+  .tickFormat(''));
 
   // Binding and making shapes
   const circles = canvas.selectAll('.circle')
@@ -242,16 +259,19 @@ async function updateGraph(state) {
   .attr('r', (d, i) => setRadius(d.population))
   .attr('fill', '#bb2222');
 
-
 }
 
-updateGraph(6);
+// updateGraph(6);
 
-// let stateNum = 0;
-// setInterval(() => {
-//   updateGraph(stateNum);
-//   stateNum++;
-// }, 2000);
+let stateNum = 0;
+setInterval(() => {
+  updateGraph(stateNum);
+  d3.select('.grid').remove();
+  d3.select('.xAxis').remove();
+  d3.select('.yAxis').remove();
+  // callGrid.remove();
+  stateNum = (stateNum > 51) ? 0 : stateNum + 1;
+}, 2000);
 
 
 // Setting amount of ticks
