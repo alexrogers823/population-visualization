@@ -24,10 +24,10 @@ async function test() {
 async function prepareState(index) {
   const span = document.querySelector('span');
   const allCities = await loadData();
-  // console.log(allCities);
+  console.log(allCities);
   const states = [...new Set(allCities.map(city => city.state))]
                   .sort();
-  // console.log(states[0]);
+  console.log(states.length);
   const cities = allCities.filter(city => city.state === states[index])
                           .slice(0, 10);
 
@@ -219,6 +219,8 @@ async function makeAxis(state) {
 async function updateGraph(state) {
   const [data, cityScale, growthScale, cityAxis, growthAxis] = await makeAxis(state);
 
+  const t = d3.transition().duration(1000);
+
 
   // Re-calling the axis'
   const spawnCityAxis = canvas.append('g')
@@ -231,8 +233,8 @@ async function updateGraph(state) {
 
   // Removing previous axis
 
-  spawnCityAxis.call(cityAxis);
-  spawnGrowthAxis.call(growthAxis);
+  spawnCityAxis.transition(t).call(cityAxis);
+  spawnGrowthAxis.transition(t).call(growthAxis);
 
 
   const callGrid = canvas.append('g')
@@ -249,18 +251,30 @@ async function updateGraph(state) {
   const circles = canvas.selectAll('.circle')
   .data(data);
 
-  circles.exit().remove();
+  circles.exit()
+    .transition(t)
+    .attr("fill-opacity", 0.1)
+    .attr('cy', growthScale(0))
+    .remove();
 
-  circles.attr('cx', (d, i) => cityScale(1+i))
-          .attr('cy', (d, i) => growthScale(parseFloat(d.growth_from_2000_to_2013)));
+
+  circles.transition(t)
+    .attr('cx', (d, i) => cityScale(1+i))
+    .attr('cy', (d, i) => growthScale(parseFloat(d.growth_from_2000_to_2013)));
 
   circles.enter()
   .append('circle')
   .attr('class', 'circle')
   .attr('cx', (d, i) => cityScale(1+i)) //So circles are made from 1 instead of 0
-  .attr('cy', (d, i) => growthScale(parseFloat(d.growth_from_2000_to_2013)))
+  .attr('cy', growthScale(0))
   .attr('r', (d, i) => setRadius(d.population))
+  .attr('fill-opacity', 0.1)
+  .transition(t)
+  .attr('fill-opacity', 1)
+  .attr('cy', (d, i) => growthScale(parseFloat(d.growth_from_2000_to_2013)))
   .attr('fill', '#bb2222');
+
+  return t;
 
 }
 
@@ -268,13 +282,13 @@ async function updateGraph(state) {
 
 let stateNum = 0;
 setInterval(() => {
-  updateGraph(stateNum);
-  d3.select('.grid').remove();
-  d3.select('.xAxis').remove();
-  d3.select('.yAxis').remove();
+  const dur = updateGraph(stateNum);
+  d3.select('.grid').transition(dur).remove();
+  d3.select('.xAxis').transition(dur).remove();
+  d3.select('.yAxis').transition(dur).remove();
   // callGrid.remove();
-  stateNum = (stateNum > 51) ? 0 : stateNum + 1;
-}, 2000);
+  stateNum = (stateNum > 50) ? 0 : stateNum + 1;
+}, 3000);
 
 
 // Setting amount of ticks
