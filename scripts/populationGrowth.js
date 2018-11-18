@@ -231,8 +231,7 @@ async function updateGraph(state) {
                           .attr('class', 'yAxis')
                           .attr('transform', 'translate(20, 0)');
 
-  // Removing previous axis
-
+  // Recreate axis'
   spawnCityAxis.transition(t).call(cityAxis);
   spawnGrowthAxis.transition(t).call(growthAxis);
 
@@ -242,7 +241,7 @@ async function updateGraph(state) {
   // .attr('transform', `translate(0, 0`)
 
 
-  callGrid.call(d3.axisLeft()
+  callGrid.transition(t).call(d3.axisLeft()
   .scale(growthScale)
   .tickSize(-width, 0, 0)
   .tickFormat(''));
