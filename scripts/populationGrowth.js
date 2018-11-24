@@ -271,7 +271,7 @@ async function updateGraph(state) {
   .transition(t)
   .attr('fill-opacity', 1)
   .attr('cy', (d, i) => growthScale(parseFloat(d.growth_from_2000_to_2013)))
-  .attr('fill', '#bb2222');
+  .attr('fill', '#bb22bb');
 
   return t;
 
